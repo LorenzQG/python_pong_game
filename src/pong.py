@@ -18,6 +18,9 @@ pygame.mixer.music.play(-1)
 pointSound = pygame.mixer.Sound("./sounds/smw_coin.wav")
 pointSound.set_volume(0.9)
 
+gameOverSound = pygame.mixer.Sound("./sounds/smw_game_over.wav")
+gameOverSound.set_volume(0.9)
+
 def restart():
     player.score = 0
     enemy.score = 0
@@ -199,6 +202,12 @@ while isRunning:
             player.move(-10, 0)
         elif pygame.key.get_pressed()[K_d]:
             player.move(10, 0)
+
+    if enemy.score == 5 or player.score == 5:
+        pygame.mixer.music.stop()
+        gameOverSound.play()
+        show_game_over()
+        restart()
 
     pygame.draw.line(screen, (255, 255, 255), (0, height / 2), (width, height / 2))
     screen.blit(enemyMessage, (width - 50, height / 2 - 50))
