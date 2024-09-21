@@ -10,6 +10,64 @@ pygame.init()
 scale = 2
 width = 540 * scale
 height = 280 * scale
+isRunning = True
+pygame.mixer.music.set_volume(0.2)
+backgroundSound = pygame.mixer.music.load("./sounds/John Lopker - I'm a Swifty Now _ Taylor Swift Fan Song.mp3")
+pygame.mixer.music.play(-1)
+
+pointSound = pygame.mixer.Sound("./sounds/smw_coin.wav")
+pointSound.set_volume(0.9)
+
+def restart():
+    player.score = 0
+    enemy.score = 0
+    player.x = (width / 2) - (200 / 2)
+    player.y = 0
+    enemy.x = (width / 2) - (200 / 2)
+    enemy.y = height - 20
+    ball.x = width / 2
+    ball.y = height / 2
+    ball.angle = randrange(120 - 45) + 46
+    ball.dy = math.sin(math.radians(ball.angle)) * ball.speed
+    ball.dx = math.cos(math.radians(ball.angle)) * ball.speed
+
+def show_text(text, size, color, x, y):
+    fonte = pygame.font.SysFont('arial', size, True, True)
+    text = fonte.render(text, True, color)
+    textRect = text.get_rect()
+    textRect.midtop = (x, y)
+    screen.blit(text, textRect)
+
+def show_screen():
+    show_text('Pong', 60, (255, 255, 255), width / 2, 50)
+    show_text('Press Space to play', 30, (255, 255, 255), width / 2, height / 2)
+    show_text('Press ESC to exit', 30, (255, 255, 255), width / 2, height / 2 + 50)
+    pygame.display.flip()
+
+    waitForPlayer()
+
+def show_game_over():
+    show_text('Game Over', 60, (255, 255, 255), width / 2, 50)
+    show_text('Press Space to play again', 30, (255, 255, 255), width / 2, height / 2)
+    show_text('Press ESC to exit', 30, (255, 255, 255), width / 2, height / 2 + 50)
+    pygame.display.flip()
+
+    waitForPlayer()
+
+def waitForPlayer():
+    waiting = True
+    while waiting:
+        clock.tick(60)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                waiting = False
+                isRunning = False
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_SPACE:
+                    waiting = False
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    exit()
 
 class player:
     height = 20
@@ -37,7 +95,7 @@ class player:
 class enemy:
     height = 20
     width = 200
-    speed = 2
+    speed = 3
     score = 0
 
     def __init__(self, x, y):
@@ -47,9 +105,9 @@ class enemy:
     def move(self):
 
         if self.x + self.width / 2 < ball.x:
-            self.x += self.speed
+            self.x += self.speed * 0.7
         elif self.x + self.width / 2 > ball.x:
-            self.x -= self.speed
+            self.x -= self.speed * 0.7
 
         if self.x > width - self.width:
             self.x = width - self.width
@@ -86,7 +144,8 @@ class ball:
             self.dx *= -1
 
         if self.y > height + 10:
-            player.score += 1
+            enemy.score += 1
+            pointSound.play()
             self.x = width / 2
             self.y = height / 2
             self.angle = randrange(120 - 45) + 46
@@ -94,7 +153,8 @@ class ball:
             self.dx = math.cos(math.radians(self.angle)) * self.speed
         
         if self.y < 0:
-            enemy.score += 1
+            player.score += 1
+            pointSound.play()
             self.x = width / 2
             self.y = height / 2
             self.angle = randrange(120 - 45) + 46
@@ -111,7 +171,6 @@ class ball:
         draw = pygame.draw.circle(screen, (0, 255, 0), (self.x, self.y), self.radius)
         return draw
         
-
 x = (width / 2) - (200 / 2)
 y = 0
 
@@ -120,12 +179,17 @@ enemy = enemy(x, height - 20)
 ball = ball(width / 2, height / 2)
 
 screen = pygame.display.set_mode((width, height))
+fonte = pygame.font.SysFont('arial', 40, True, True)
 pygame.display.set_caption('Pong')
 clock = pygame.time.Clock()
 
-while True:
+show_screen()
+
+while isRunning:
     clock.tick(60)
     screen.fill((0, 0 ,0))
+    enemyMessage = fonte.render(str(enemy.score), True, (255, 255, 255))
+    playerMessage = fonte.render(str(player.score), True, (255, 255, 255))
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
@@ -136,6 +200,9 @@ while True:
         elif pygame.key.get_pressed()[K_d]:
             player.move(10, 0)
 
+    pygame.draw.line(screen, (255, 255, 255), (0, height / 2), (width, height / 2))
+    screen.blit(enemyMessage, (width - 50, height / 2 - 50))
+    screen.blit(playerMessage, (width - 50, height / 2 + 25))
     player.draw()
     enemy.draw()
     ball.draw()
