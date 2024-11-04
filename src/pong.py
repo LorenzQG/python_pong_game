@@ -13,6 +13,7 @@ width = 540 * scale
 height = 280 * scale
 isRunning = True
 
+
 def restart():
     player.score = 0
     enemy.score = 0
@@ -153,7 +154,6 @@ class ball:
 
         if self.y > height + 10:
             player.score += 1
-            pointSound.play()
             self.x = width / 2
             self.y = height / 2
             self.angle = randrange(120 - 45) + 46
@@ -162,7 +162,6 @@ class ball:
         
         if self.y < 0:
             enemy.score += 1
-            pointSound.play()
             self.x = width / 2
             self.y = height / 2
             self.angle = randrange(120 - 45) + 46
@@ -192,15 +191,7 @@ screen = pygame.display.set_mode((width, height))
 fonte = pygame.font.SysFont('arial', 40, True, True)
 pygame.display.set_caption('Pong')
 
-pygame.mixer.music.set_volume(0.2)
-backgroundSound = pygame.mixer.music.load("./sounds/John Lopker - I'm a Swifty Now _ Taylor Swift Fan Song.mp3")
-pygame.mixer.music.play(-1)
 
-pointSound = pygame.mixer.Sound("./sounds/smw_coin.wav")
-pointSound.set_volume(0.9)
-
-gameOverSound = pygame.mixer.Sound("./sounds/smw_game_over.wav")                   
-gameOverSound.set_volume(0.9)
 
 clock = pygame.time.Clock()
 
@@ -224,8 +215,6 @@ while isRunning:
             player.move(10, 0)
 
     if enemy.score == 5:
-        pygame.mixer.music.stop()
-        gameOverSound.play()
         show_game_over()
         restart()
 
